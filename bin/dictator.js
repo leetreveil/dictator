@@ -11,9 +11,20 @@ process.logStream.setMaxListeners(0);
 
 var dictator = require('..');
 var fs = require('fs');
+var procs;
 
-var filename = process.argv[2] || 'dictator.json';
-var procs = JSON.parse(fs.readFileSync(filename));
+if (process.argv.length > 2) {
+  var filename = process.argv[2];
+  procs = JSON.parse(fs.readFileSync(filename));
+}
+
+var stdinSize = fs.fstatSync(process.stdin.fd).size;
+if (stdinSize > 0) {
+  var stdinBuf = fs.readSync(process.stdin.fd, stdinSize)[0];
+  procs = JSON.parse(stdinBuf);
+}
+
+if (!procs) throw Error('no config file read!');
 
 dictator.rule(procs);
 process.on('SIGINT', function() { dictator.terminate(procs); });
