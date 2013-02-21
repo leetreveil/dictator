@@ -53,6 +53,7 @@ function run(proc) {
   child.on('exit', function() {
     if (log) log('%s terminated', proc.name);
     proc.exitedAt = new Date();
+    if (proc.use_ret_code) retCode = proc.child.exitCode;
     delete proc.child;
     process.nextTick(terminate);
   });
@@ -64,9 +65,11 @@ function runningProcs(procs) {
   });
 }
 
+var retCode = 0;
+
 exports.terminate = terminate;
 function terminate(procs) {
   var running = runningProcs(procs);
   _.forEach(running, function(proc) { proc.child.kill('SIGINT'); });
-  if (_.isEmpty(running)) setTimeout(process.exit, 100);
+  if (_.isEmpty(running)) setTimeout(function () { process.exit(retCode); }, 100);
 }
