@@ -67,6 +67,6 @@ function runningProcs(procs) {
 exports.terminate = terminate;
 function terminate(procs) {
   var running = runningProcs(procs);
-  _.forEach(running, function(proc) { proc.child.kill('SIGKILL'); });
+  _.forEach(running, function(proc) { proc.child.kill('SIGINT'); });
   if (_.isEmpty(running)) setTimeout(process.exit, 100);
 }
